@@ -1,23 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
-
+import Heatmap from './Heatmap'
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2>Monthly Global Land-Surface Temperature</h2>
+      <h3>1753 - 2015: base temperature 8.66℃</h3>
+      <Heatmap/>
     </div>
   );
 }
