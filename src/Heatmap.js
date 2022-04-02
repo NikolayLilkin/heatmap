@@ -11,8 +11,8 @@ class Heatmap extends Component{
         fetch("https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json").then(response => response.json()).then(data => {this.drawHeatmap(data);return data;});
     }
     colorCode(variance){
-        let temp = variance + 8.66
-        console.log(temp);
+        let temp = variance + 8.66;
+        temp=temp.toFixed(1);
         if(temp<=3.9){
             return "rgb(69, 117, 180)";
         }
@@ -40,7 +40,7 @@ class Heatmap extends Component{
         else if(12.8<=temp){
             return "rgb(215, 48, 39)"; 
         }
-        return "";
+        return "rgb(215, 48, 39)";
     }
     drawHeatmap(data){
         console.log(data.monthlyVariance[0]);
@@ -75,7 +75,7 @@ class Heatmap extends Component{
             }
         })
         var margin = {top: 10, right: 30, bottom: 90, left: 40},
-            width = 1200 - margin.left - margin.right,
+            width = 1250 - margin.left - margin.right,
             height = 550 - margin.top - margin.bottom;
         var svg=d3.select(this.refs.canvas).append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -127,13 +127,14 @@ class Heatmap extends Component{
         })
         .attr("width",3)
         .attr("height",37.3)
+        .style("stroke", "black")
+        .style("stroke-width", "0.1px")
         .style("fill",(d,i)=>{
             let color = this.colorCode(d.variance);
-            console.log(color);
             return color;
         })
         .on("mouseover", function(d, i) {
-            tooltip.html(`<div>${i.year} - ${i.month}<br/>${i.variance+8.66}<br/>${i.variance}</d>`).style("visibility", "visible");
+            tooltip.html(`<div>${i.year} - ${i.month}<br/>${(i.variance+8.66).toFixed(1)+"℃"}<br/>${i.variance.toFixed(1)+"℃"}</d>`).style("visibility", "visible");
           })
         .on("mousemove", function(event){
             tooltip
@@ -142,8 +143,69 @@ class Heatmap extends Component{
         })
         .on("mouseout", function() {
             tooltip.html(``).style("visibility", "hidden");
-          });;
-            
+          });
+        
+        svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -20)
+            .attr("x", -200)
+            .style("fill","black")
+            .style("font-size","16")
+            .text("Months");  
+        svg.append("text")
+            .attr("text-anchor", "end")
+            .attr("y", 490)
+            .attr("x", 1250/2-10)
+            .style("fill","black")
+            .style("font-size","16")
+            .text("Years");
+        svg.append("defs")
+        .append("linearGradient")
+        .attr("id", "legendGradientMulti")
+        .attr("x1", "0%").attr("y1", "0%")
+        .attr("x2", "100%").attr("y2", "0%")
+        .selectAll("stop")
+        .data([
+        {offset: "0%", color: "rgb(69, 117, 180)"},
+        {offset: "12.5%", color: "rgb(116, 173, 209)"},
+        {offset: "25%", color: "rgb(171, 217, 233)"},
+        {offset: "37.5%", color: "rgb(224, 243, 248)"},
+        {offset: "50%", color: "rgb(255, 255, 191)"},
+        {offset: "62.5%", color: "rgb(254, 224, 144)"},
+        {offset: "75%", color: "rgb(253, 174, 97)"},
+        {offset: "87.5%", color: "rgb(244, 109, 67)"},
+        {offset: "100%", color: "rgb(215, 48, 39)"} ])
+        .enter().append("stop")
+        .attr("offset", function(d) { return d.offset; })
+        .attr("stop-color", function(d) { return d.color; });
+
+
+        var tempX = d3.scaleLinear();
+        tempX.range([0,240]);
+        tempX.domain([2.0,14.0]);
+        var legendWidth=200;
+        var legendHeight=16;
+        var legendsvg = svg
+        .append("g")
+        .attr("id", "legend")
+        .attr(
+          "transform",
+          "translate(" + 20 + "," + (height-20) + ")"
+        );
+    
+        legendsvg
+        .append("rect")
+        .attr("class", "legendRect")
+        .attr("x", 30)
+        .attr("y", 74)
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#legendGradientMulti)")
+        legendsvg.append("g").attr("transform", "translate(20," + 90 + ")")
+        .call(d3.axisBottom(tempX)); 
+
+        
     }
     render(){
         return (<div ref="canvas">
